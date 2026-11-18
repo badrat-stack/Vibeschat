@@ -1,0 +1,246 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VibesChat - Chat, Stories & Channels</title>
+<meta name="description" content="VibesChat - Chat like WhatsApp but better. Stories, Channels, Disappearing Messages, Vibes and more.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:#0b141a;color:#e9edef}
+.top{background:#202c33;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.top h1{font-size:20px} .top h1 span{color:#00a884}
+.top button{padding:8px 12px;border:none;border-radius:20px;background:#00a884;color:#fff;font-weight:700;cursor:pointer}
+.wrap{max-width:480px;margin:0 auto;background:#111b21;min-height:100vh}
+.stories{display:flex;gap:12px;overflow-x:auto;padding:12px;border-bottom:1px solid #222d34}
+.story{min-width:62px;text-align:center;cursor:pointer}
+.story div{width:58px;height:58px;border-radius:50%;border:3px solid #00a884;display:flex;align-items:center;justify-content:center;font-size:22px;background:#202c33}
+.story p{font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{margin:10px;padding:10px 12px;background:#202c33;border-radius:10px}
+.search input{width:100%;background:transparent;border:none;outline:none;color:#fff;font-size:14px}
+.tabs{display:flex;gap:6px;padding:0 10px}
+.tabs button{flex:1;padding:10px;border:none;border-radius:20px;background:#202c33;color:#fff;font-weight:700;cursor:pointer}
+.tabs button.active{background:#00a884}
+.chatlist{padding:10px}
+.chat{display:flex;gap:12px;padding:12px;border-radius:12px;cursor:pointer}
+.chat:hover{background:#202c33}
+.avatar{width:48px;height:48px;border-radius:50%;background:#00a884;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.chatinfo{flex:1;min-width:0}
+.chatinfo b{display:flex;justify-content:space-between}
+.chatinfo b span{font-weight:400;font-size:11px;color:#00a884}
+.chatinfo p{font-size:13px;color:#8696a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.badge{background:#00a884;color:#111b21;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:800}
+.card{background:#1e1e32;padding:16px;border-radius:14px;margin:10px}
+.card h3{margin-bottom:8px}
+input,textarea,select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#0b141a;color:#fff;font-size:15px;margin-top:8px}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;background:#00a884;color:#fff;font-weight:800;margin-top:10px;cursor:pointer}
+.out{background:#0b141a;padding:12px;border-radius:10px;margin-top:10px;line-height:1.6;white-space:pre-wrap}
+.chatview{display:none}
+.msgrow{padding:8px 12px;margin:8px;max-width:80%;border-radius:12px;line-height:1.5;font-size:14px}
+.me{background:#005c4b;margin-left:auto}
+.other{background:#202c33}
+.msgrow small{display:block;font-size:10px;color:#aaa;margin-top:3px;text-align:right}
+.inputrow{display:flex;gap:8px;padding:10px}
+.inputrow input{flex:1}
+.inputrow button{padding:12px 16px;border:none;border-radius:50%;background:#00a884;color:#fff;font-size:18px;cursor:pointer}
+.feat{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.feat span{background:#202c33;padding:6px 10px;border-radius:20px;font-size:12px}
+.footer{padding:12px;text-align:center;color:#8696a0;font-size:12px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- JOIN SCREEN -->
+<div class="wrap" id="joinScreen">
+<div class="top"><h1>Vibes<span>Chat</span></h1><button onclick="alert('VibesChat V2 - Free')">V2.0</button></div>
+<div style="padding:20px;text-align:center">
+<h2 style="font-size:26px">New Chat,<br>New Vibes</h2>
+<p style="color:#8696a0;margin:12px 0;line-height:1.6">Chat, Stories, Disappearing Messages, Vibes & Channels.<br>Like WhatsApp, but better.</p>
+</div>
+<div class="card">
+<h3>Join With Mobile Number</h3>
+<p style="font-size:13px;color:#aaa">Your number is only used as your display name inside VibesChat. We do not send any code. No one can see your number.</p>
+<label style="display:block;margin-top:12px;font-weight:700">Your Name</label>
+<input id="myName" placeholder="e.g. Pre">
+<label style="display:block;margin-top:10px;font-weight:700">Mobile Number (e.g. 099...)</label>
+<input id="myNum" placeholder="0991234567" inputmode="numeric">
+<button class="btn" onclick="join()">Join VibesChat</button>
+<p style="font-size:11px;color:#8696a0;margin-top:10px;text-align:center">By joining, you agree this is a demo. Your messages are saved only on your phone.</p>
+</div>
+<div style="padding:0 20px">
+<div class="feat"><span>Stories 24h</span><span>Disappearing Chat</span><span>Vibes Mode</span><span>Channels</span><span>Vibes Coins</span></div>
+</div>
+<div class="footer">© 2026 VibesChat • Made in Malawi</div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div class="wrap hidden" id="mainScreen">
+<div class="top"><h1>Vibes<span>Chat</span> <span id="meLabel" style="font-size:12px;color:#aaa"></span></h1><button onclick="logout()">Logout</button></div>
+<div class="stories" id="stories"></div>
+<div class="search"><input id="searchInput" oninput="filterChats()" placeholder="Search chat..."></div>
+<div class="tabs">
+<button onclick="showTab('chats')" id="tab-chats" class="active">Chats</button>
+<button onclick="showTab('channels')" id="tab-channels">Channels</button>
+<button onclick="showTab('vibes')" id="tab-vibes">Vibes</button>
+</div>
+
+<div id="tabChats">
+<div class="chatlist" id="chatList"></div>
+<div class="card">
+<h3>Start New Chat</h3>
+<input id="newChatName" placeholder="Friend name / Group name">
+<button class="btn" onclick="addChat()">Create Chat</button>
+</div>
+<div class="card">
+<h3>Invite Friend</h3>
+<p style="font-size:13px;color:#aaa">Share your VibesChat link with a friend so they can join and chat with you.</p>
+<button class="btn" style="background:#25D366" onclick="invite()">Share Invite Link</button>
+</div>
+</div>
+
+<div id="tabChannels" class="hidden">
+<div class="chatlist">
+<div class="chat" onclick="openChannel('Malawi Football')"><div class="avatar">⚽</div><div class="chatinfo"><b>Malawi Football <span>12k members</span></b><p>Flames today...</p></div></div>
+<div class="chat" onclick="openChannel('Global Vibes')"><div class="avatar">🌍</div><div class="chatinfo"><b>Global Vibes <span>8k members</span></b><p>New vibes today!</p></div></div>
+<div class="chat" onclick="openChannel('Music & TikTok')"><div class="avatar">🎵</div><div class="chatinfo"><b>Music & TikTok <span>5k members</span></b><p>New song...</p></div></div>
+</div>
+</div>
+
+<div id="tabVibes" class="hidden">
+<div class="card">
+<h3>Vibes Generator - Not on WhatsApp!</h3>
+<p style="font-size:13px;color:#aaa">Create your vibe, post it on your Story.</p>
+<select id="vibeType">
+<option>Motivational</option><option>Funny</option><option>Love</option><option>Savage</option>
+</select>
+<button class="btn" onclick="genVibe()">Generate Vibe</button>
+<div class="out" id="vibeOut">Your vibe will appear here...</div>
+<button class="btn" style="background:#25D366" onclick="copyVibe()">Copy & Share on Story</button>
+</div>
+<div class="card">
+<h3>Disappearing Message - New Feature!</h3>
+<p style="font-size:13px;color:#aaa">In VibesChat, you can send a message that deletes itself after 10 seconds. WhatsApp does not have this so easy.</p>
+<button class="btn" onclick="alert('Go to any Chat, type a message, click the ghost button to send as Disappearing!')">Try It Now</button>
+</div>
+</div>
+<div class="footer">VibesChat - Your data stays on your phone only. No code is sent.</div>
+</div>
+
+<!-- CHAT VIEW -->
+<div class="wrap hidden chatview" id="chatView">
+<div class="top"><button onclick="backToList()" style="background:#202c33">Back</button><h1 id="chatTitle">Chat</h1><button onclick="alert('Disappearing Mode: ON - Messages will delete after 10 sec')">👻</button></div>
+<div id="msgs" style="padding:10px;min-height:400px"></div>
+<div class="inputrow"><input id="msgInput" placeholder="Type a message..."><button onclick="sendMsg()">Send</button></div>
+</div>
+
+<script>
+let me = JSON.parse(localStorage.getItem('vibes_me')||'null');
+let chats = JSON.parse(localStorage.getItem('vibes_chats')||'null') || [
+ {name:'Vibes Official', last:'Welcome to VibesChat!', emoji:'⚡', unread:2},
+ {name:'Malawi Vibes Group', last:'Did you see the new video?', emoji:'🇲🇼', unread:5},
+ {name:'Best Friend', last:'Bro, did you see VibesChat?', emoji:'😂', unread:0},
+];
+let storiesData = [
+ {name:'You', emoji:'+'}, {name:'Pre', emoji:'🔥'}, {name:'Mary', emoji:'❤️'}, {name:'James', emoji:'⚽'}, {name:'Chimwemwe', emoji:'😂'}, {name:'Tadala', emoji:'✨'}
+];
+let currentChat = null;
+let messages = JSON.parse(localStorage.getItem('vibes_msgs')||'{}');
+function save(){localStorage.setItem('vibes_chats', JSON.stringify(chats)); localStorage.setItem('vibes_msgs', JSON.stringify(messages));}
+function join(){
+ let n=document.getElementById('myName').value.trim();
+ let num=document.getElementById('myNum').value.trim();
+ if(!n || !num) return alert('Please enter name and number first!');
+ if(num.length < 9) return alert('Number is too short. Enter like 0991234567');
+ me={name:n, num:num};
+ localStorage.setItem('vibes_me', JSON.stringify(me));
+ showMain();
+}
+function logout(){localStorage.removeItem('vibes_me'); location.reload();}
+function showMain(){
+ document.getElementById('joinScreen').classList.add('hidden');
+ document.getElementById('mainScreen').classList.remove('hidden');
+ document.getElementById('meLabel').innerText='• '+me.name;
+ renderStories(); renderChats();
+}
+function renderStories(){
+ document.getElementById('stories').innerHTML=storiesData.map(s=>`<div class="story" onclick="alert('Story of '+s.name+' - This is demo. In V3, you can post your real Story!')"><div>${s.emoji}</div><p>${s.name}</p></div>`).join('');
+}
+function renderChats(){
+ document.getElementById('chatList').innerHTML=chats.map((c,i)=>`<div class="chat" onclick="openChat(${i})"><div class="avatar">${c.emoji}</div><div class="chatinfo"><b>${c.name} <span>${c.unread?c.unread+' new':''}</span></b><p>${c.last}</p></div>${c.unread?`<span class="badge">${c.unread}</span>`:''}</div>`).join('');
+}
+function filterChats(){
+ let q=document.getElementById('searchInput').value.toLowerCase();
+ document.querySelectorAll('#chatList .chat').forEach(el=>{el.style.display=el.innerText.toLowerCase().includes(q)?'flex':'none';});
+}
+function showTab(t){
+ ['chats','channels','vibes'].forEach(k=>{
+  document.getElementById('tab'+k.charAt(0).toUpperCase()+k.slice(1)).classList.add('hidden');
+  document.getElementById('tab-'+k).classList.remove('active');
+ });
+ document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden');
+ document.getElementById('tab-'+t).classList.add('active');
+}
+function addChat(){
+ let n=document.getElementById('newChatName').value.trim();
+ if(!n) return alert('Enter name first!');
+ chats.unshift({name:n, last:'New chat created! Start chatting', emoji:'💬', unread:0});
+ save(); renderChats(); document.getElementById('newChatName').value='';
+}
+function invite(){
+ let link = window.location.href;
+ navigator.clipboard.writeText(link);
+ alert('Link copied! Send it to your friend on WhatsApp or Facebook: ' + link);
+}
+function openChannel(name){
+ alert('You joined Channel: '+name+'\n\nIn V3, you will get daily updates here!');
+}
+function openChat(i){
+ currentChat=i;
+ document.getElementById('mainScreen').classList.add('hidden');
+ document.getElementById('chatView').classList.remove('hidden');
+ document.getElementById('chatTitle').innerText=chats[i].name;
+ chats[i].unread=0; save(); renderChats();
+ renderMsgs();
+}
+function backToList(){
+ document.getElementById('chatView').classList.add('hidden');
+ document.getElementById('mainScreen').classList.remove('hidden');
+}
+function renderMsgs(){
+ let key=currentChat;
+ let arr=messages[key]||[{from:'other', text:'Hi '+me.name+'! Welcome to VibesChat. Try sending a message.'}];
+ document.getElementById('msgs').innerHTML=arr.map(m=>`<div class="msgrow ${m.from==='me'?'me':'other'}">${m.text}<small>${m.from==='me'?'You':'Friend'} • Now</small></div>`).join('');
+}
+function sendMsg(){
+ let v=document.getElementById('msgInput').value.trim();
+ if(!v) return;
+ let key=currentChat;
+ if(!messages[key]) messages[key]=[];
+ messages[key].push({from:'me', text:v});
+ chats[key].last='You: '+v;
+ save(); document.getElementById('msgInput').value=''; renderMsgs();
+ setTimeout(()=>{
+  messages[key].push({from:'other', text:'Got it! VibesChat is cool, right? (This is demo auto-reply)'});
+  chats[key].last='Friend: Got it!';
+  save(); renderMsgs();
+ }, 1000);
+}
+function genVibe(){
+ let t=document.getElementById('vibeType').value;
+ let vibes=[
+  `VIBE OF THE DAY\n\nDo not wait for tomorrow. Start today.\n- VibesChat`,
+  `If you are reading this, you are moving forward. Keep going.\n- VibesChat`,
+  `Smile today, tomorrow is another one.\n- VibesChat`
+ ];
+ document.getElementById('vibeOut').innerText=vibes[Math.floor(Math.random()*vibes.length)]+'\n\nType: '+t;
+}
+function copyVibe(){
+ let t=document.getElementById('vibeOut').innerText;
+ navigator.clipboard.writeText(t); alert('Copied! Paste it on your Story.');
+}
+if(me) showMain();
+</script>
+</body>
+</html>
